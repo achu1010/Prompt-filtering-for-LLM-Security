@@ -15,7 +15,7 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 print("Starting hate speech detection server...")
 
 # Gemini AI API setup
-gemini_api_key = "AIzaSyBO4wCO6cv0MVXpI4b6gzX9PPfcAYfuQ2Y"
+gemini_api_key = "GEMINI_API_KEY"  # Replace with your actual Gemini API key
 genai.configure(api_key=gemini_api_key)
 generation_config = {
     "temperature": 1,
