@@ -7,6 +7,10 @@ from langdetect import detect
 import google.generativeai as genai
 import traceback
 from collections import defaultdict
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -15,7 +19,9 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 print("Starting hate speech detection server...")
 
 # Gemini AI API setup
-gemini_api_key = "GEMINI_API_KEY"  # Replace with your actual Gemini API key
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if not gemini_api_key:
+    raise ValueError("GEMINI_API_KEY environment variable is required")
 genai.configure(api_key=gemini_api_key)
 generation_config = {
     "temperature": 1,
@@ -324,4 +330,5 @@ def test():
 if __name__ == '__main__':
     print("Starting Flask server on port 5000...")
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
