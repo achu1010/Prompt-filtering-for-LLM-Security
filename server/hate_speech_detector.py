@@ -19,6 +19,8 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 print("Starting hate speech detection server...")
 
 # Gemini AI API setup
+# SECURITY NOTE: An API key was previously hard-coded here. It has been removed.
+# Ensure you set GEMINI_API_KEY in your environment or in a .env file (never commit real keys).
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 if not gemini_api_key:
     raise ValueError("GEMINI_API_KEY environment variable is required")
@@ -322,6 +324,24 @@ def generate_response():
             return jsonify({"response": "[WARNING] The generated response was flagged for inappropriate content."}), 403
 
     return jsonify({"response": ai_text})
+
+@app.route('/check-content', methods=['POST'])
+def check_content():
+    """Endpoint to only moderate content without generating an AI response.
+    Returns 200 with details if safe, 403 with warning message if flagged."""
+    data = request.json or {}
+    text = data.get('text', '')
+    if not text:
+        return jsonify({"ok": False, "message": "No text provided"}), 400
+
+    is_safe, message, thread_id, details = moderate_and_flag(text, is_response=False)
+    status_code = 200 if is_safe else 403
+    return jsonify({
+        "ok": is_safe,
+        "message": message,
+        "thread_id": thread_id,
+        "details": details
+    }), status_code
 
 @app.route('/test', methods=['GET'])
 def test():
